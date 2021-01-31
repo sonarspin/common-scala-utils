@@ -1,5 +1,14 @@
 import sbt._
 
+object Organisations {
+  lazy val typesafeAkka = "com.typesafe.akka"
+  lazy val typesafePlay = "com.typesafe.play"
+}
+
+object Versions {
+  lazy val akkaVersion = "2.6.12"
+}
+
 object Dependencies {
 
   lazy val loggingDependencies: Seq[ModuleID] = Seq(
@@ -9,7 +18,7 @@ object Dependencies {
 
   lazy val kafkaDependencies: Seq[ModuleID] = Seq(
     "org.apache.kafka" % "kafka-streams" % "2.2.0",
-    "com.typesafe.akka" %% "akka-stream-kafka" % "1.1.0"
+    Organisations.typesafeAkka %% "akka-stream-kafka" % "1.1.0"
   )
 
   lazy val testDependencies: Seq[ModuleID] = Seq(
@@ -21,7 +30,12 @@ object Dependencies {
   )
 
   lazy val jsonDependencies: Seq[ModuleID] = Seq(
-    "com.typesafe.play" %% "play-json" % "2.7.4",
-    "com.typesafe.play" %% "play-json-joda" % "2.7.4"
+    Organisations.typesafePlay %% "play-json" % "2.7.4",
+    Organisations.typesafePlay %% "play-json-joda" % "2.7.4"
+  )
+
+  lazy val akkaDependencies: Seq[ModuleID] = Seq(
+    Organisations.typesafeAkka %% "akka-actor" % Versions.akkaVersion,
+    Organisations.typesafeAkka %% "akka-testkit" % Versions.akkaVersion % Test
   )
 }

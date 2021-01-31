@@ -3,7 +3,11 @@ import Dependencies._
 lazy val root = (project in file("."))
   .settings(
     name := "common-scala-utils"
-  ).aggregate(kafka)
+  ).aggregate(
+  monitoring,
+  health,
+  kafka, worker
+)
 
 lazy val kafka = project
   .settings(
@@ -15,6 +19,16 @@ lazy val kafka = project
         configDependencies ++
         testDependencies
   ).dependsOn(health, monitoring)
+
+lazy val worker = project
+  .settings(
+    name := "worker",
+    commonSettings,
+    libraryDependencies ++=
+      akkaDependencies ++
+        loggingDependencies ++
+        testDependencies
+  ).dependsOn(monitoring)
 
 lazy val health = project
   .settings(
@@ -33,7 +47,7 @@ lazy val commonSettings = Seq(
 
   scalaVersion := "2.13.4",
 
-  crossScalaVersions := Seq("2.11.12", "2.12.12", "2.13.4"),
+  crossScalaVersions := Seq("2.12.13", "2.13.4"),
 
   scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
   fork in Test := true,
