@@ -4,12 +4,8 @@ import akka.actor.{Actor, ActorLogging, Props}
 import com.thiefspin.monitoring.Metrics
 import com.thiefspin.worker.Worker.{Init, Work}
 
-class Worker[A](
-                 groupIdentifier: String,
-                 name: String
-               )(job: () => A)
-               (implicit metrics: Metrics)
-  extends Actor with ActorLogging {
+class Worker[A](groupIdentifier: String, name: String)(job: () => A)
+               (implicit metrics: Metrics) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case Init =>
@@ -18,6 +14,7 @@ class Worker[A](
       sender() ! Init
     case Work => {
       log.info(s"Worker $name executing job")
+      metrics.inc(s"Worker.Pool.$groupIdentifier.Work.$name")
       job()
     }
   }
@@ -25,7 +22,8 @@ class Worker[A](
 
 object Worker {
 
-  def apply[A](groupIdentifier: String, name: String)(job: () => A)(implicit metrics: Metrics): Props = {
+  def apply[A](groupIdentifier: String, name: String)(job: () => A)
+              (implicit metrics: Metrics): Props = {
     Props(new Worker(groupIdentifier: String, name)(job))
   }
 

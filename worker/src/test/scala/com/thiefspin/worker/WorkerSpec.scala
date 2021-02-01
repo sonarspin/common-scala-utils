@@ -1,9 +1,9 @@
 package com.thiefspin.worker
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.thiefspin.monitoring.Metrics
-import com.thiefspin.worker.Worker.Init
+import com.thiefspin.worker.Worker.{Init, Work}
 import com.thiefspin.worker.metrics.TestMetrics
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
@@ -17,6 +17,18 @@ class WorkerSpec extends TestKit(ActorSystem("WorkerSpec"))
   with BeforeAndAfterAll
   with Eventually {
 
+  var inits: Int = 0
+  var jobs: Int = 0
+
+  implicit val metrics: Metrics = new TestMetrics(inc => {
+    if (inc == "Worker.Pool.test-group.Init.test-worker") {
+      inits = inits + 1
+    }
+    if (inc == "Worker.Pool.test-group.Work.test-worker_2") {
+      jobs = jobs + 1
+    }
+  })
+
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
   }
@@ -24,21 +36,39 @@ class WorkerSpec extends TestKit(ActorSystem("WorkerSpec"))
   "A Worker" should {
 
     "initialise itself" in {
-      var inits: Int = 0
-      implicit val metrics: Metrics = new TestMetrics(inc => {
-        if (inc == "Worker.Pool.test-group.Init.test-worker") {
-          inits = inits + 1
-        }
-      })
-      val worker = system.actorOf(Worker[String]("test-group", "test-worker")(() => "job done"), "test-worker")
+      var jobDone = false
+      val worker = createTestActor[Unit]("test-worker"){ () =>
+        jobDone = true
+      }
       val message = Init
       worker ! message
       expectMsg(message)
       eventually {
         assert(inits == 1)
+        assert(!jobDone)
       }
     }
 
+    "execute a job " in {
+      var jobDone = false
+      val worker = createTestActor[Unit]("test-worker_2") {
+        () => jobDone = true
+      }
+      assert(!jobDone)
+      val message = Work
+      worker ! message
+      eventually {
+        assert(jobs == 1)
+        assert(jobDone)
+      }
+    }
+
+  }
+
+  private def createTestActor[A](name: String)(job: () => A): ActorRef = {
+    system.actorOf(Worker[A](
+      "test-group",
+      name)(job), name)
   }
 
 }
