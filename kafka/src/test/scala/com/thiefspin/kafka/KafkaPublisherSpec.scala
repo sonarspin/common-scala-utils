@@ -20,34 +20,30 @@ class KafkaPublisherSpec {
 
   class CustomMetrics() extends Metrics {
     override def inc(name: String): Unit = ???
+
     override def time[A](name: String)(f: => A): A = ???
+
     override def timeAsync[A](name: String)(f: => Future[A])(implicit ec: ExecutionContext): Future[A] = ???
+
     override def timeAndInc[A](name: String)(f: => A): A = ???
+
     override def timeAndIncAsync[A](name: String)(f: => Future[A])(implicit ec: ExecutionContext): Future[A] = ???
+
     override def incBy(name: String, value: Long): Unit = ???
+
     override def gauge(name: String, value: Long): Unit = ???
+
     override def recordTime(name: String, value: Long): Unit = ???
   }
 
-  implicit val customMetrics = new CustomMetrics()
-
-//  implicit val customMetrics = new Metrics {
-//    override def inc(name: String): Unit = ???
-//    override def time[A](name: String)(f: => A): A = ???
-//    override def timeAsync[A](name: String)(f: => Future[A])(implicit ec: ExecutionContext): Future[A] = ???
-//    override def timeAndInc[A](name: String)(f: => A): A = ???
-//    override def timeAndIncAsync[A](name: String)(f: => Future[A])(implicit ec: ExecutionContext): Future[A] = ???
-//    override def incBy(name: String, value: Long): Unit = ???
-//    override def gauge(name: String, value: Long): Unit = ???
-//    override def recordTime(name: String, value: Long): Unit = ???
-//  }
+  implicit val customMetrics: CustomMetrics = new CustomMetrics()
 
   val ctx = new KafkaContext(config)(customMetrics)
 
   final case class Message(id: Long, text: String)
 
   val topic: String = "test-topic"
-  val message = Message(1L, "some text")
+  val message: Message = Message(1L, "some text")
 
   val publisher: MessagePublisher[Message] = KafkaPublisher[Message](ctx)
 
