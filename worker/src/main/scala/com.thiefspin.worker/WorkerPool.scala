@@ -1,20 +1,29 @@
 package com.thiefspin.worker
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem}
 import com.thiefspin.monitoring.Metrics
+import com.thiefspin.worker.Worker.{Init, Work}
 
-class WorkerPool[A, B](name: String, numWorkers: Int)(job: () => A)(implicit system: ActorSystem, metrics: Metrics) {
+class WorkerPool[A](name: String, numWorkers: Int)(job: Job[A])
+  (implicit system: ActorSystem, metrics: Metrics) {
 
-  init()
+  val workers: List[ActorRef] = createWorkers()
 
-  private def init(): Unit = {
-    (0 to numWorkers).map { i =>
-      system.actorOf(
-        Props(
-          new Worker[A](name, s"$name-$i")(job)
-        )
-      )
-    }
+  def work(): Unit = {
+    workers.foreach(_ ! Work)
+  }
+
+  private def createWorkers(): List[ActorRef] = {
+    (1 to numWorkers).map { i =>
+      init {
+        system.actorOf(Worker(name, s"$name-$i")(job))
+      }
+    }.toList
+  }
+
+  private def init(ref: ActorRef): ActorRef = {
+    ref ! Init
+    ref
   }
 
 }

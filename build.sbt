@@ -1,5 +1,17 @@
 import Dependencies._
 
+ThisBuild / scalacOptions ++= Seq(
+  "-Ywarn-dead-code",
+  "-Xlint:inaccessible",
+  "-Ywarn-unused",
+  "-Xlint:unused",
+  "-feature",
+  "-deprecation",
+  "-opt:redundant-casts",
+  "-opt:copy-propagation",
+  "-unchecked"
+)
+
 lazy val root = (project in file("."))
   .settings(
     name := "common-scala-utils"
@@ -39,7 +51,9 @@ lazy val health = project
 lazy val monitoring = project
   .settings(
     name := "monitoring",
-    commonSettings
+    commonSettings,
+    libraryDependencies ++=
+      loggingDependencies
   )
 
 lazy val commonSettings = Seq(

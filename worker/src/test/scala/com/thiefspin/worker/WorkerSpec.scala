@@ -42,7 +42,6 @@ class WorkerSpec extends TestKit(ActorSystem("WorkerSpec"))
       }
       val message = Init
       worker ! message
-      expectMsg(message)
       eventually {
         assert(inits == 1)
         assert(!jobDone)
@@ -65,7 +64,7 @@ class WorkerSpec extends TestKit(ActorSystem("WorkerSpec"))
 
   }
 
-  private def createTestActor[A](name: String)(job: () => A): ActorRef = {
+  private def createTestActor[A](name: String)(job: Job[A]): ActorRef = {
     system.actorOf(Worker[A](
       "test-group",
       name)(job), name)

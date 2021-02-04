@@ -44,7 +44,7 @@ class KafkaPublisher[A](ctx: KafkaContext)(implicit system: ActorSystem) extends
 
   override def publishF(topic: String, key: String, message: A): Future[RecordMetadata] = {
     val record = new ProducerRecord(topic, key, message)
-    val promise = Promise[RecordMetadata]
+    val promise = Promise[RecordMetadata]()
     producer.send(record, callbackF(promise))
     promise.future
   }

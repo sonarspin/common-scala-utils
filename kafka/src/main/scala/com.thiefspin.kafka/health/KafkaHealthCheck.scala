@@ -37,7 +37,7 @@ class KafkaHealthCheck(ctx: KafkaContext, topic: String = "ping", attempts: Int 
     val producerRecord = new ProducerRecord(topic, "HealthCheck", "ping".getBytes)
     val promise = Promise[Long]()
     producer.send(producerRecord, new Callback() {
-      def onCompletion(metadata: RecordMetadata, e: Exception) {
+      def onCompletion(metadata: RecordMetadata, e: Exception): Unit = {
         val after = System.currentTimeMillis()
         if (e != null) {
           promise.failure(e)
