@@ -18,7 +18,9 @@ lazy val root = (project in file("."))
   ).aggregate(
   monitoring,
   health,
-  kafka, worker
+  kafka,
+  worker,
+  lang
 )
 
 lazy val kafka = project
@@ -40,7 +42,7 @@ lazy val worker = project
       akkaDependencies ++
         loggingDependencies ++
         testDependencies
-  ).dependsOn(monitoring)
+  ).dependsOn(monitoring, lang)
 
 lazy val health = project
   .settings(
@@ -56,8 +58,16 @@ lazy val monitoring = project
       loggingDependencies
   )
 
+lazy val lang = project
+  .settings(
+    name := "lang",
+    commonSettings,
+    libraryDependencies ++=
+      jsonDependencies
+  )
+
 lazy val commonSettings = Seq(
-  organization := "thiefspin",
+  organization := "sonarspin",
 
   scalaVersion := "2.13.4",
 

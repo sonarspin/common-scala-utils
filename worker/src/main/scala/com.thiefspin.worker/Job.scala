@@ -1,5 +1,11 @@
 package com.thiefspin.worker
 
-trait Job[A] {
-  def doJob(): A
-}
+import com.thiefspin.worker.JobStatus.PENDING
+
+import scala.concurrent.Future
+
+final case class Job[A](
+  task: () => Future[A],
+  result: Option[A] = None,
+  status: JobStatus = PENDING,
+)

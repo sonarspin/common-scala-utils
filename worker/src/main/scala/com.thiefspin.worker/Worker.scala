@@ -14,7 +14,7 @@ class Worker[A](groupIdentifier: String, name: String)(job: Job[A])
     case Work => {
       log.info(s"Worker $name executing job")
       metrics.inc(s"Worker.Pool.$groupIdentifier.Work.$name")
-      job.doJob()
+      //job.doJob()
     }
   }
 }

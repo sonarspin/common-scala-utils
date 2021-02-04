@@ -17,57 +17,57 @@ class WorkerSpec extends TestKit(ActorSystem("WorkerSpec"))
   with BeforeAndAfterAll
   with Eventually {
 
-  var inits: Int = 0
-  var jobs: Int = 0
-
-  implicit val metrics: Metrics = new TestMetrics(inc => {
-    if (inc == "Worker.Pool.test-group.Init.test-worker") {
-      inits = inits + 1
-    }
-    if (inc == "Worker.Pool.test-group.Work.test-worker_2") {
-      jobs = jobs + 1
-    }
-  })
-
-  override def afterAll(): Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
-  "A Worker" should {
-
-    "initialise itself" in {
-      var jobDone = false
-      val worker = createTestActor[Unit]("test-worker"){ () =>
-        jobDone = true
-      }
-      val message = Init
-      worker ! message
-      eventually {
-        assert(inits == 1)
-        assert(!jobDone)
-      }
-    }
-
-    "execute a job " in {
-      var jobDone = false
-      val worker = createTestActor[Unit]("test-worker_2") {
-        () => jobDone = true
-      }
-      assert(!jobDone)
-      val message = Work
-      worker ! message
-      eventually {
-        assert(jobs == 1)
-        assert(jobDone)
-      }
-    }
-
-  }
-
-  private def createTestActor[A](name: String)(job: Job[A]): ActorRef = {
-    system.actorOf(Worker[A](
-      "test-group",
-      name)(job), name)
-  }
+//  var inits: Int = 0
+//  var jobs: Int = 0
+//
+//  implicit val metrics: Metrics = new TestMetrics(inc => {
+//    if (inc == "Worker.Pool.test-group.Init.test-worker") {
+//      inits = inits + 1
+//    }
+//    if (inc == "Worker.Pool.test-group.Work.test-worker_2") {
+//      jobs = jobs + 1
+//    }
+//  })
+//
+//  override def afterAll(): Unit = {
+//    TestKit.shutdownActorSystem(system)
+//  }
+//
+//  "A Worker" should {
+//
+//    "initialise itself" in {
+//      var jobDone = false
+//      val worker = createTestActor[Unit]("test-worker"){ () =>
+//        jobDone = true
+//      }
+//      val message = Init
+//      worker ! message
+//      eventually {
+//        assert(inits == 1)
+//        assert(!jobDone)
+//      }
+//    }
+//
+//    "execute a job " in {
+//      var jobDone = false
+//      val worker = createTestActor[Unit]("test-worker_2") {
+//        () => jobDone = true
+//      }
+//      assert(!jobDone)
+//      val message = Work
+//      worker ! message
+//      eventually {
+//        assert(jobs == 1)
+//        assert(jobDone)
+//      }
+//    }
+//
+//  }
+//
+//  private def createTestActor[A](name: String)(job: Job[A]): ActorRef = {
+//    system.actorOf(Worker[A](
+//      "test-group",
+//      name)(job), name)
+//  }
 
 }
